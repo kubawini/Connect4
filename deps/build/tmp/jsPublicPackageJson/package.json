@@ -1,0 +1,13 @@
+{
+  "name": "korge-hello-world-deps",
+  "version": "0.0.0-unspecified",
+  "main": "korge-hello-world-deps.js",
+  "types": "korge-hello-world-deps.d.ts",
+  "devDependencies": {},
+  "dependencies": {
+    "format-util": "^1.0.5"
+  },
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": []
+}
