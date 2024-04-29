@@ -1,4 +1,3 @@
-import Logic.DummyPlayer
 import UI.*
 import korlibs.event.*
 import korlibs.korge.*
@@ -22,17 +21,10 @@ var leftIndent: Float = 0f
 var topIndent: Float = 0f
 var columnIndent: Float = 0f
 var columnHeight: Float = 0f
-var currentToken: Token = Token.YELLOW
 var rowBreak: Float = 0f
-var board: Logic.Board = Logic.Board()
-var gameOver: Boolean = false
-var freezeWindow: Boolean = false
 val windowWidth: Float = 660f
 val windowHeight: Float = 665f
 var singlePlayerMode: Boolean = false // TODO if you want to play single player, change to true
-var animationPending: Boolean = false
-var aiPlaying = false
-var boardVM: UI.Board = UI.Board(null, DummyPlayer())
 
 
 suspend fun main() = Korge(windowSize = Size(windowWidth, windowHeight), backgroundColor = Token.NONE.rgb) {
@@ -51,14 +43,18 @@ suspend fun main() = Korge(windowSize = Size(windowWidth, windowHeight), backgro
     val menuWidth = views.virtualWidth
     val menuHeight = 40
 
-    boardVM = board(this)
+    val boardVM = board(this) { board, gameState ->
+        showGameOver(gameState.winner) {
+            board.restart()
+        }
+    }
 
-    val menu = solidRect(Size(menuWidth, menuHeight), Colors["#F3F3F3"]){
-        position(0,0)
+    val menu = solidRect(Size(menuWidth, menuHeight), Colors["#F3F3F3"]) {
+        position(0, 0)
     }
 
     val restartButton = container {
-        val background = roundRect(Size(30,30), RectCorners(5f), fill = RGBA(0,0,0,0))
+        val background = roundRect(Size(30, 30), RectCorners(5f), fill = RGBA(0, 0, 0, 0))
         alignTopToTopOf(menu, 10.0)
         alignRightToRightOf(menu, 10.0)
         image(resourcesVfs["refresh.png"].readBitmap()) {
@@ -66,14 +62,12 @@ suspend fun main() = Korge(windowSize = Size(windowWidth, windowHeight), backgro
             centerOn(background)
         }
         onClick {
-            if(!freezeWindow) {
-                boardVM.restart()
-            }
+            boardVM.restart()
         }
     }
 
     val undoButton = container {
-        val background = roundRect(Size(30,30), RectCorners(5f), fill = RGBA(0,0,0,0))
+        val background = roundRect(Size(30, 30), RectCorners(5f), fill = RGBA(0, 0, 0, 0))
         alignTopToTopOf(menu, 10.0)
         alignRightToLeftOf(restartButton, 10.0)
         image(resourcesVfs["back.png"].readBitmap()) {
@@ -83,7 +77,7 @@ suspend fun main() = Korge(windowSize = Size(windowWidth, windowHeight), backgro
     }
 
     val closeButton = container {
-        val background = roundRect(Size(30,30), RectCorners(5f), fill = RGBA(0,0,0,0))
+        val background = roundRect(Size(30, 30), RectCorners(5f), fill = RGBA(0, 0, 0, 0))
         alignTopToTopOf(menu, 10.0)
         alignLeftToLeftOf(menu, 10.0)
         image(resourcesVfs["close.png"].readBitmap()) {
@@ -94,20 +88,7 @@ suspend fun main() = Korge(windowSize = Size(windowWidth, windowHeight), backgro
 
 }
 
-fun Stage.showPopup(board: UI.Board){
-    if(gameOver and !freezeWindow) {
-        freezeWindow = true
-        showGameOver {
-            board.restart()
-            gameOver = false
-            freezeWindow = false
-            animationPending = false
-            aiPlaying = false
-        }
-    }
-}
-
-fun Container.showGameOver(onRestart: () -> Unit) = container {
+fun Container.showGameOver(winner: Token, onRestart: () -> Unit) = container {
     fun restart() {
         this@container.removeFromParent()
         onRestart()
@@ -115,14 +96,7 @@ fun Container.showGameOver(onRestart: () -> Unit) = container {
 
     position(leftIndent, topIndent)
 
-    var infoText = ""
-    if (currentToken == Token.RED){
-        infoText = "YELLOW won"
-    }
-    else{
-        infoText = "RED won"
-    }
-
+    val infoText = "$winner won"
     roundRect(Size(fieldWidth, fieldHeight), RectCorners(5), fill = Colors["#FFFFFF33"])
     text(infoText, 60f, Colors.BLACK) {
         centerBetween(0f, 0f, fieldWidth, fieldHeight)

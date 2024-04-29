@@ -2,7 +2,7 @@ package Logic
 
 val Height: Int = 6
 
-class Board() {
+open class BoardState() {
 
     private var moves: Int = 0
     var position: ULong = 0uL
@@ -65,7 +65,7 @@ class Board() {
         return false
     }
 
-    public fun isWinningMove(column: Int): Boolean{
+    fun isWinningMove(column: Int): Boolean{
         var futurePosition = position
         futurePosition = futurePosition or ((mask + bottom_mask(column)) and columnMask(column))
         return alignment(futurePosition)

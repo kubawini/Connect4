@@ -4,5 +4,5 @@ package Logic
  chooseColumnToPlay should take current board (do not modify it)
  and return column to which AI should throw a token */
 interface MonteCarloPlayer {
-    fun chooseColumnToPlay(board: Board): Int
+    fun chooseColumnToPlay(gameState: BoardState): Int
 }

@@ -1,141 +1,78 @@
 package UI
-import aiPlaying
-import animationPending
-import board
-import boardVM
+
 import cellSize
 import columnHeight
 import columnIndent
-import currentToken
 import fieldHeight
 import fieldLeftIndent
 import fieldTopIndent
-import gameOver
-import korlibs.image.color.*
-import korlibs.korge.animate.*
-import korlibs.korge.input.*
-import korlibs.korge.time.*
+import korlibs.image.color.RGBA
+import korlibs.korge.animate.animator
+import korlibs.korge.animate.moveBy
+import korlibs.korge.input.onClick
+import korlibs.korge.input.onOut
 import korlibs.korge.view.*
-import korlibs.time.*
+import korlibs.time.milliseconds
 import leftIndent
 import radius
-import showPopup
-import singlePlayerMode
 
 
-fun Container.column(number: Int, stage: Stage) = Column(number, stage).addTo(this)
+fun Container.column(number: Int, stage: Stage, onClick: suspend (column: Column) -> Unit) =
+    Column(number, stage, onClick).addTo(this)
 
-class Column(val number: Int, override val stage: Stage) : Container() {
+class Column(val number: Int, override val stage: Stage, private val onClick: suspend (column: Column) -> Unit) :
+    Container() {
 
     private var bgColumn = this.graphics {
         setColumnOpacity(0)
     }
 
     private var virtualToken = this.graphics {
-        setVirtualTokenOpacity(0)
+        setVirtualTokenOpacity(0, Token.NONE)
     }
 
-    private var tokenToBeThrown = this.graphics {
-        createVirtualToken(0)
-    }
 
-    init{
+    init {
         position(leftIndent, columnIndent)
-        onOver {
-            if (!gameOver) {
-                this.showHighlight()
-                if(animationPending && !singlePlayerMode) {
-                    this.showVirtualToken(nextToken())
-                } else{
-                    this.showVirtualToken()
-                }
-            }
-        }
         onOut {
-            if (!gameOver) {
-                this.hideHighlight()
-                this.hideVirtualToken()
-            }
+            this.hideHighlight()
+            this.hideVirtualToken()
         }
         onClick {
-            if (!gameOver and !animationPending) {
-                val numberOfTokens = board.numberOfTokens(this.number)
-                if (board.canPlay(number)) {
-                    animationPending = true
-                    aiPlaying = false
-                    if (board.isWinningMove(number)) {
-                        gameOver = true
-                    }
-                    board.play(this.number)
-                    this.throwToken(numberOfTokens)
-                    if(!singlePlayerMode){
-                    }
-                    else{
-                        this.hideVirtualToken()
-                        this.showVirtualToken()
-                    }
-                    if (gameOver) {
-                        this.hideVirtualToken()
-                        this.hideHighlight()
-                    }
-                    else if (!singlePlayerMode){
-                        delay(1000.milliseconds)
-                        aiPlaying = true
-                        boardVM.playAI()
-                        if(gameOver){
-                            this.hideVirtualToken()
-                            this.hideHighlight()
-                        }
-                    }
-                }
-            }
-            stage.showPopup(boardVM)
+            onClick(this)
         }
     }
 
-    fun throwTokenbyAI(numberOfTokens: Int){
-        throwToken(numberOfTokens)
-    }
-
-    private fun throwToken(numberOfTokens: Int){
+    suspend fun throwToken(row: Int, token: Token) {
         val animator = animator(parallel = true)
-        showTokenToBeThrown()
-        animator.parallel {
-            moveBy(tokenToBeThrown,
-                y = fieldHeight - 1 - fieldTopIndent - numberOfTokens * cellSize,
-                time = 1000.milliseconds)
-        }.block {
-            if(singlePlayerMode or aiPlaying){
-                animationPending = false
-                aiPlaying = false
-            }
-        }
-        switchToken()
+        val tokenToBeThrown = createVirtualToken(255, token)
+        animator.moveBy(
+            tokenToBeThrown,
+            y = fieldHeight - 1 - fieldTopIndent - row * cellSize,
+            time = 1000.milliseconds
+        )
+        animator.awaitComplete()
     }
 
-    private fun showHighlight(){
+    fun showHighlight() {
         this.removeChild(bgColumn)
         setColumnOpacity(50)
     }
 
-    private fun showVirtualToken(token: Token = currentToken){
+    fun showVirtualToken(token: Token) {
         this.setVirtualTokenOpacity(255, token)
     }
 
-    private fun showTokenToBeThrown(token: Token = currentToken){
-        this.tokenToBeThrown = createVirtualToken(255, token)
-    }
-
-    private fun hideVirtualToken(){
+    fun hideVirtualToken() {
         this.removeChild(virtualToken)
     }
 
-    private fun hideHighlight(){
+    private fun hideHighlight() {
         this.removeChild(bgColumn)
         setColumnOpacity(0)
     }
 
-    private fun setColumnOpacity(a: Int){
+    private fun setColumnOpacity(a: Int) {
         bgColumn = this.graphics {
             fill(RGBA(155, 155, 155, a))
             {
@@ -147,23 +84,25 @@ class Column(val number: Int, override val stage: Stage) : Container() {
         }
     }
 
-    private fun setVirtualTokenOpacity(a: Int, token: Token = currentToken){
+    private fun setVirtualTokenOpacity(a: Int, token: Token) {
         virtualToken = createVirtualToken(a, token)
     }
 
-    private fun createVirtualToken(opacity: Int, token: Token = currentToken): Graphics{
+    private fun createVirtualToken(opacity: Int, token: Token): Graphics {
         return this.graphics {
-            fill(RGBA(token.rgb.r, token.rgb.g, token.rgb.b, opacity)){
-                circle(korlibs.math.geom.Circle(
-                    fieldLeftIndent + number * cellSize + cellSize / 2,
-                    radius + fieldTopIndent,
-                    radius
-                ))
+            fill(RGBA(token.rgb.r, token.rgb.g, token.rgb.b, opacity)) {
+                circle(
+                    korlibs.math.geom.Circle(
+                        fieldLeftIndent + number * cellSize + cellSize / 2,
+                        radius + fieldTopIndent,
+                        radius
+                    )
+                )
             }
         }
     }
 
-    fun restart(){
+    fun restart() {
         this.removeChildren()
         hideHighlight()
         hideVirtualToken()
