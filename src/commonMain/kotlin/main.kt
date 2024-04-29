@@ -1,3 +1,4 @@
+import Logic.DummyPlayer
 import UI.*
 import korlibs.event.*
 import korlibs.korge.*
@@ -31,7 +32,7 @@ val windowHeight: Float = 665f
 var singlePlayerMode: Boolean = false // TODO if you want to play single player, change to true
 var animationPending: Boolean = false
 var aiPlaying = false
-var boardVM: UI.Board = UI.Board(null)
+var boardVM: UI.Board = UI.Board(null, DummyPlayer())
 
 
 suspend fun main() = Korge(windowSize = Size(windowWidth, windowHeight), backgroundColor = Token.NONE.rgb) {

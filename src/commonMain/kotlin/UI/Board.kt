@@ -16,8 +16,8 @@ import leftIndent
 import radius
 import topIndent
 
-fun Container.board(stage: Stage, monteCarloPlayer: MonteCarloPlayer = DummyPlayer()) {
-    Board(stage, monteCarloPlayer).addTo(this)
+fun Container.board(stage: Stage, monteCarloPlayer: MonteCarloPlayer = DummyPlayer()): Board {
+    return Board(stage, monteCarloPlayer).addTo(this)
 }
 
 class Board(
