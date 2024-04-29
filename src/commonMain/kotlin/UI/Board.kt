@@ -16,14 +16,17 @@ import leftIndent
 import radius
 import topIndent
 
-fun Container.board(stage: Stage) = Board(stage).addTo(this)
+fun Container.board(stage: Stage, monteCarloPlayer: MonteCarloPlayer = DummyPlayer()) {
+    Board(stage, monteCarloPlayer).addTo(this)
+}
 
-class Board(override val stage: Stage?) : Container() {
+class Board(
+    override val stage: Stage?,
+    private val monteCarloPlayer: MonteCarloPlayer
+) : Container() {
     var columns = emptyArray<Column>()
 
-    var monteCarloPlayer: MonteCarloPlayer = DummyPlayer() // TODO Swap DummyPlayer for your class
-
-    init{
+    init {
         roundRect(Size(fieldWidth, fieldHeight), RectCorners(5), fill = Colors["#0f1394"]) {
             position(leftIndent, topIndent)
         }
@@ -36,14 +39,15 @@ class Board(override val stage: Stage?) : Container() {
                             Circle(
                                 fieldLeftIndent + i * cellSize + cellSize / 2,
                                 fieldTopIndent + j * cellSize + cellSize / 2,
-                                radius)
+                                radius
+                            )
                         )
                     }
                 }
             }
         }.position(leftIndent, topIndent)
 
-        if(stage != null) {
+        if (stage != null) {
             for (i in 0..6) {
                 val column = column(i, stage!!)
                 column.addTo(this)
@@ -60,9 +64,9 @@ class Board(override val stage: Stage?) : Container() {
         gameOver = false
     }
 
-    fun playAI(){
+    fun playAI() {
         val columnIndex = monteCarloPlayer.chooseColumnToPlay(board)
-        if(board.isWinningMove(columnIndex)){
+        if (board.isWinningMove(columnIndex)) {
             gameOver = true
         }
         var column = columns.get(columnIndex)
