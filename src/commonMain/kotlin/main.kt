@@ -1,4 +1,4 @@
-import UI.*
+import ui.*
 import korlibs.event.*
 import korlibs.korge.*
 import korlibs.korge.view.*

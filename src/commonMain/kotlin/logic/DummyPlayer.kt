@@ -1,4 +1,4 @@
-package Logic
+package logic
 
 class DummyPlayer : GamePlayer {
     override fun chooseColumnToPlay(gameState: BoardState): Int {

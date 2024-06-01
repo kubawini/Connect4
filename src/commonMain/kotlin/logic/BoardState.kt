@@ -1,4 +1,4 @@
-package Logic
+package logic
 
 val Height: Int = 6
 

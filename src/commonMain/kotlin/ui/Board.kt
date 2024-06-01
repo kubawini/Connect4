@@ -1,8 +1,8 @@
-package UI
+package ui
 
-import Logic.BoardState
-import Logic.DummyPlayer
-import Logic.GamePlayer
+import logic.BoardState
+import logic.DummyPlayer
+import logic.GamePlayer
 import cellSize
 import fieldHeight
 import fieldLeftIndent

@@ -1,4 +1,4 @@
-package Logic
+package logic
 
 /* TODO Create classes implementing this interface
  chooseColumnToPlay should take current board (do not modify it)

@@ -1,6 +1,4 @@
-package UI
-
-import Logic.BoardState
+package ui
 
 sealed class GameState {
     class InProgress() : GameState()
