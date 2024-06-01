@@ -2,14 +2,13 @@ package UI
 
 import Logic.BoardState
 import Logic.DummyPlayer
-import Logic.MonteCarloPlayer
+import Logic.GamePlayer
 import cellSize
 import fieldHeight
 import fieldLeftIndent
 import fieldTopIndent
 import fieldWidth
 import korlibs.image.color.Colors
-import korlibs.io.async.launchImmediately
 import korlibs.korge.input.onOver
 import korlibs.korge.view.*
 import korlibs.math.geom.Circle
@@ -22,12 +21,12 @@ import topIndent
 
 fun Container.board(
     stage: Stage,
-    monteCarloPlayer: MonteCarloPlayer = DummyPlayer(),
+    gamePlayer: GamePlayer = DummyPlayer(),
     onGameOver: (board: Board, GameState.GameOver) -> Unit
 ): Board {
     return Board(
         stage = stage,
-        monteCarloPlayer = monteCarloPlayer,
+        gamePlayer = gamePlayer,
         boardState = BoardState(),
         onGameOver = onGameOver
     ).addTo(this)
@@ -35,7 +34,7 @@ fun Container.board(
 
 class Board(
     override val stage: Stage,
-    private val monteCarloPlayer: MonteCarloPlayer,
+    private val gamePlayer: GamePlayer,
     private val boardState: BoardState,
     private val onGameOver: (board: Board, GameState.GameOver) -> Unit
 ) : Container() {
@@ -115,7 +114,7 @@ class Board(
     }
 
     suspend fun playAI() {
-        val columnIndex = monteCarloPlayer.chooseColumnToPlay(boardState)
+        val columnIndex = gamePlayer.chooseColumnToPlay(boardState)
         if (boardState.isWinningMove(columnIndex)) {
             gameState = GameState.GameOver(currentPlayer)
         }
