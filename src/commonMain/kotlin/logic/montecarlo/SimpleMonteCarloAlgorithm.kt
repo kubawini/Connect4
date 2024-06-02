@@ -9,6 +9,7 @@ import kotlin.random.Random
 
 class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgorithm {
     val random: Random = Random.Default
+    val actions: IntArray = (0 until 6).toList().toIntArray()
 
     override fun play(root: MonteCarloNode, iterations: Int): Int {
         repeat(iterations) {
@@ -65,8 +66,13 @@ class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgor
             if (boardState.isGameOver()) {
                 return evaluateGame(boardState)
             }
-            val availableActions = (0 until Width).filter { action -> boardState.canPlay(action) }
-            val action = availableActions.random(random)
+            var action = -1
+            while (action < 0) {
+                val newAction = actions.random(random)
+                if (boardState.canPlay(newAction)) {
+                    action = newAction
+                }
+            }
             boardState = boardState.play(action)
         }
     }
