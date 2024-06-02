@@ -75,7 +75,11 @@ data class BoardState(
 
     // TODO: verify whether it works
     fun isGameOver(): Boolean {
-        return alignment(position) || alignment(position xor mask) || isDraw()
+        return alignment(position xor mask) || isDraw()
+    }
+
+    fun isWonState(): Boolean {
+        return alignment(position xor mask)
     }
 
     // TODO: Make sure this is correct

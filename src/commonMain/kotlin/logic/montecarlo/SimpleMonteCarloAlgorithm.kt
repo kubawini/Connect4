@@ -2,6 +2,7 @@ package logic.montecarlo
 
 import logic.BoardState
 import logic.Width
+import logic.montecarlo.MonteCarloGameResult.*
 import kotlin.math.ln
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -23,8 +24,8 @@ class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgor
         if (leafNode.visits > 0 && !leafNode.boardState.isGameOver()) {
             leafNode = expansion(leafNode)
         }
-        val score = simulation(leafNode, simulatedPlayer)
-        backpropagation(leafNode, score)
+        val simulationResult = simulation(leafNode)
+        backpropagation(leafNode, simulationResult)
     }
 
     private fun selection(root: MonteCarloNode): MonteCarloNode {
@@ -58,14 +59,11 @@ class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgor
         return expandedNode
     }
 
-    private fun simulation(node: MonteCarloNode, simulatedPlayer: Int): Int {
+    private fun simulation(node: MonteCarloNode): MonteCarloGameResult {
         var boardState = node.boardState.copy()
         while (true) {
-            if (boardState.isDraw()) {
-                return 1
-            }
             if (boardState.isGameOver()) {
-                return evaluateGame(boardState, simulatedPlayer)
+                return evaluateGame(boardState)
             }
             val availableActions = (0 until Width).filter { action -> boardState.canPlay(action) }
             val action = availableActions.random(random)
@@ -73,18 +71,35 @@ class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgor
         }
     }
 
-    private fun backpropagation(start: MonteCarloNode, score: Int) {
+    private fun backpropagation(start: MonteCarloNode, result: MonteCarloGameResult) {
         var node: MonteCarloNode? = start
         while (node != null) {
+            val score = resultToScore(result, node.boardState.currentPlayer)
             node.updateScore(score)
             node = node.parent
         }
     }
 
-    private fun evaluateGame(boardState: BoardState, simulatedPlayer: Int) = when {
-        // current player lost
-        boardState.currentPlayer != simulatedPlayer -> 2
-        else -> 0
+    private fun evaluateGame(boardState: BoardState): MonteCarloGameResult {
+        if (boardState.isWonState()) {
+            if (boardState.currentPlayer == 1) {
+                return P0_WIN
+            } else {
+                return P1_WIN
+            }
+        } else if (boardState.isDraw()) {
+            return DRAW
+        }
+        throw IllegalStateException("Illegal board state as terminal state")
+    }
+
+    private fun resultToScore(result: MonteCarloGameResult, currentPlayer: Int): Int {
+        return when {
+            result == DRAW -> 1
+            result == P0_WIN && currentPlayer == 1 -> 2
+            result == P1_WIN && currentPlayer == 0 -> 2
+            else -> 0
+        }
     }
 
     private fun ucb(q: Double, c: Double, nParent: Int, nChild: Int): Double {

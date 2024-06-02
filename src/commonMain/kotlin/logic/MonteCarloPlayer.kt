@@ -4,7 +4,7 @@ import korlibs.time.measureTimeWithResult
 import logic.montecarlo.MonteCarloNode
 import logic.montecarlo.SimpleMonteCarloAlgorithm
 
-const val iterations: Int = 1_000_000
+const val iterations: Int = 100_000
 
 class MonteCarloPlayer : GamePlayer {
     // TODO: Convert to iterative solution where single game tree is extended through the game
