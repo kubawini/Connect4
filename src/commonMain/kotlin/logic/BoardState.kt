@@ -11,7 +11,7 @@ data class BoardState(
 ) {
     val movesCount: Int
         get() = moves
-    private val key: ULong
+    val key: ULong
         get() = position + mask + bottom
 
     fun canPlay(column: Int): Boolean {

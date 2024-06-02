@@ -7,15 +7,25 @@ import kotlin.math.ln
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgorithm {
+class SimpleMonteCarloAlgorithm(
+    private val c: Double = 1.414,
+    private val useTranspositionTable: Boolean = true
+) : MonteCarloAlgorithm {
     val random: Random = Random.Default
     val actions: IntArray = (0 until 6).toList().toIntArray()
+    val transpositionTable = SimpleTranspositionTable()
+    var cachesHit = 0
+    var cachesMiss = 0
 
     override fun play(root: MonteCarloNode, iterations: Int): Int {
         repeat(iterations) {
             play(root)
         }
         println(root.children)
+        if (useTranspositionTable) {
+            println(transpositionTable)
+            println("Caches hit $cachesHit, caches miss $cachesMiss")
+        }
         return root.children.maxByOrNull { it.avgScore }?.action ?: -1
     }
 
@@ -33,7 +43,20 @@ class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgor
         var node = root
         while (true) {
             val selectedNode: MonteCarloNode? = node.children.maxByOrNull {
-                ucb(q = it.avgScore, c = c, nParent = node.visits, nChild = it.visits)
+                val avgScore = if (useTranspositionTable) {
+                    val key = it.boardState.key
+                    val transpositionData = transpositionTable.get(key)
+                    if (transpositionData != emptyTranspositionData) {
+                        cachesHit++
+                        transpositionData.avgScore
+                    } else {
+                        cachesMiss++
+                        it.avgScore
+                    }
+                } else {
+                    it.avgScore
+                }
+                ucb(q = avgScore, c = c, nParent = node.visits, nChild = it.visits)
             }
             if (selectedNode == null) {
                 return node
@@ -82,8 +105,18 @@ class SimpleMonteCarloAlgorithm(private val c: Double = 1.414) : MonteCarloAlgor
         while (node != null) {
             val score = resultToScore(result, node.boardState.currentPlayer)
             node.updateScore(score)
+            if (useTranspositionTable) {
+                updateTranspositionTableData(score, node.boardState)
+            }
             node = node.parent
         }
+    }
+
+    private fun updateTranspositionTableData(score: Int, boardState: BoardState) {
+        val key = boardState.key
+        val existingData = transpositionTable.get(key)
+        val newData = existingData + transpositionData(1, score)
+        transpositionTable.put(key, newData)
     }
 
     private fun evaluateGame(boardState: BoardState): MonteCarloGameResult {
