@@ -1,6 +1,7 @@
 package logic.montecarlo
 
 import logic.BoardState
+import logic.MoveKey
 import logic.Width
 import logic.montecarlo.MonteCarloGameResult.*
 import kotlin.math.ln
@@ -9,13 +10,17 @@ import kotlin.random.Random
 
 class SimpleMonteCarloAlgorithm(
     private val c: Double = 1.414,
-    private val useTranspositionTable: Boolean = true
+    private val useTranspositionTable: Boolean = true,
+    private val lgr: Int = 1
 ) : MonteCarloAlgorithm {
     val random: Random = Random.Default
     val actions: IntArray = (0 until 6).toList().toIntArray()
     val transpositionTable = SimpleTranspositionTable()
+    val lastGoodReplyStore = LastGoodReplyStoreImpl()
     var cachesHit = 0
     var cachesMiss = 0
+    var repliesHit = 0
+    var repliesMiss = 0
 
     override fun play(root: MonteCarloNode, iterations: Int): Int {
         repeat(iterations) {
@@ -25,6 +30,7 @@ class SimpleMonteCarloAlgorithm(
         if (useTranspositionTable) {
             println(transpositionTable)
             println("Caches hit $cachesHit, caches miss $cachesMiss")
+            println("Replies hit $repliesHit, replies miss $repliesMiss")
         }
         return root.children.maxByOrNull { it.avgScore }?.action ?: -1
     }
@@ -84,20 +90,51 @@ class SimpleMonteCarloAlgorithm(
     }
 
     private fun simulation(node: MonteCarloNode): MonteCarloGameResult {
+        val moves: MutableList<MoveKey> = mutableListOf()
         var boardState = node.boardState.copy()
         while (true) {
             if (boardState.isGameOver()) {
+                updateLastGoodReplies(moves, 1 - boardState.currentPlayer)
                 return evaluateGame(boardState)
             }
             var action = -1
-            while (action < 0) {
-                val newAction = actions.random(random)
-                if (boardState.canPlay(newAction)) {
-                    action = newAction
+            if (lgr > 0 && moves.isNotEmpty()) {
+                val move = lastGoodReplyStore.getReply(moves.last(), boardState.currentPlayer)
+                if (move.column > 0 && boardState.canPlay(move.column)) {
+                    action = move.column
+                    repliesHit++
+                } else {
+                    repliesMiss++
                 }
             }
+            if (action < 0) {
+                action = generateRandomAction(boardState)
+            }
+            moves.add(boardState.getMoveKey(action))
             boardState = boardState.play(action)
         }
+    }
+
+    private fun updateLastGoodReplies(moves: List<MoveKey>, winner: Int) {
+        moves.asReversed()
+            .windowed(size = 2, step = 2)
+            .forEach { lastMoves ->
+                val lastMove = lastMoves[0]
+                val prevMove = lastMoves[1]
+                lastGoodReplyStore.store(move = prevMove, reply = lastMove.column, player = winner)
+            }
+
+    }
+
+    private fun generateRandomAction(boardState: BoardState): Int {
+        var action = -1
+        while (action < 0) {
+            val newAction = actions.random(random)
+            if (boardState.canPlay(newAction)) {
+                action = newAction
+            }
+        }
+        return action
     }
 
     private fun backpropagation(start: MonteCarloNode, result: MonteCarloGameResult) {

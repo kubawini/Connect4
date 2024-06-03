@@ -1,5 +1,7 @@
 package logic
 
+import kotlin.jvm.JvmInline
+
 internal const val Height: Int = 6
 internal const val Width: Int = 7
 
@@ -37,6 +39,20 @@ data class BoardState(
         mask = mask or (mask + bottomMask(column))
         moves += 1
         return this
+    }
+
+    /**
+     * Returns number between 1 and 50
+     */
+    fun getMoveKey(column: Int): MoveKey {
+        val piece = (0b111_1111UL shl column * (Height + 1)) and (mask + bottomMask(column))
+        if (piece and (piece - 1UL) != 0UL) {
+            throw IllegalStateException("Illegal piece")
+        }
+        return MoveKey(piece.countTrailingZeroBits())
+        .also {
+            if (it.key > 49) throw IllegalStateException("Illegal play key $it")
+        }
     }
 
     private fun bottomMask(column: Int): ULong {
@@ -104,3 +120,13 @@ data class BoardState(
     }
 
 }
+
+@JvmInline
+value class MoveKey(val key: Int) {
+    val column: MoveColumn
+        get() = MoveColumn(key / (Width + 1))
+}
+
+@JvmInline
+value class MoveColumn(val column: Int)
+
