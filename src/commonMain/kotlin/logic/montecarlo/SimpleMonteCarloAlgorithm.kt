@@ -99,19 +99,27 @@ class SimpleMonteCarloAlgorithm(
             }
             var action = -1
             if (lgr > 0 && moves.isNotEmpty()) {
-                val move = lastGoodReplyStore.getReply(moves.last(), boardState.currentPlayer)
-                if (move.column > 0 && boardState.canPlay(move.column)) {
-                    action = move.column
-                    repliesHit++
-                } else {
-                    repliesMiss++
-                }
+                action = generateLastGoodReplyAction(lastMove = moves.last(), boardState = boardState)
             }
             if (action < 0) {
                 action = generateRandomAction(boardState)
             }
             moves.add(boardState.getMoveKey(action))
             boardState = boardState.play(action)
+        }
+    }
+
+    private fun generateLastGoodReplyAction(
+        lastMove: MoveKey,
+        boardState: BoardState
+    ): Int {
+        val move = lastGoodReplyStore.getReply(lastMove, boardState.currentPlayer)
+        return if (move.column > 0 && boardState.canPlay(move.column)) {
+            repliesHit++
+            move.column
+        } else {
+            repliesMiss++
+            -1
         }
     }
 
