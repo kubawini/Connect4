@@ -1,7 +1,7 @@
 package ui
 
 sealed class GameState {
-    class InProgress() : GameState()
+    data object InProgress : GameState()
     class GameOver(val winner: Token) : GameState()
 }
 

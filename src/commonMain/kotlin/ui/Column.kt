@@ -20,7 +20,7 @@ import radius
 fun Container.column(number: Int, stage: Stage, onClick: suspend (column: Column) -> Unit) =
     Column(number, stage, onClick).addTo(this)
 
-class Column(val number: Int, override val stage: Stage, private val onClick: suspend (column: Column) -> Unit) :
+class Column(private val number: Int, override val stage: Stage, private val onClick: suspend (column: Column) -> Unit) :
     Container() {
 
     private var bgColumn = this.graphics {

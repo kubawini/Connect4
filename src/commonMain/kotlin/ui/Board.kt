@@ -1,8 +1,5 @@
 package ui
 
-import logic.BoardState
-import logic.DummyPlayer
-import logic.GamePlayer
 import cellSize
 import fieldHeight
 import fieldLeftIndent
@@ -16,6 +13,8 @@ import korlibs.math.geom.RectCorners
 import korlibs.math.geom.Size
 import kotlinx.coroutines.sync.Mutex
 import leftIndent
+import logic.BoardState
+import logic.GamePlayer
 import logic.MonteCarloPlayer
 import radius
 import topIndent
@@ -42,7 +41,7 @@ class Board(
     private var columns = emptyArray<Column>()
     private val lock: Mutex = Mutex()
     private var currentPlayer: Token = Token.YELLOW
-    private var gameState: GameState = GameState.InProgress()
+    private var gameState: GameState = GameState.InProgress
 
     init {
         roundRect(Size(fieldWidth, fieldHeight), RectCorners(5), fill = Colors["#0f1394"]) {
@@ -111,15 +110,15 @@ class Board(
         }
         boardState.restart()
         currentPlayer = Token.YELLOW
-        gameState = GameState.InProgress()
+        gameState = GameState.InProgress
     }
 
-    suspend fun playAI() {
+    private suspend fun playAI() {
         val columnIndex = gamePlayer.chooseColumnToPlay(boardState)
         if (boardState.isWinningMove(columnIndex)) {
             gameState = GameState.GameOver(currentPlayer)
         }
-        val column = columns.get(columnIndex)
+        val column = columns[columnIndex]
         val tokensInColumn = boardState.numberOfTokens(columnIndex)
         boardState.play(columnIndex)
         column.throwToken(tokensInColumn, currentPlayer)

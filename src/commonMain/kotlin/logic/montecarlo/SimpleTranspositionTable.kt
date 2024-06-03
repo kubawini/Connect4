@@ -1,7 +1,5 @@
 package logic.montecarlo
 
-import kotlin.math.sin
-
 class SimpleTranspositionTable(private val size: Int = 8_000_000) : TranspositionTable {
     // 8_000_000 = 64 MB
     private val array: LongArray = LongArray(size)

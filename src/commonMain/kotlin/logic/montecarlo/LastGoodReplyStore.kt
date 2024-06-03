@@ -2,7 +2,6 @@ package logic.montecarlo
 
 import logic.MoveColumn
 import logic.MoveKey
-import kotlin.jvm.JvmInline
 
 interface LastGoodReplyStore {
     /**
