@@ -13,14 +13,14 @@ class SimpleMonteCarloAlgorithm(
     private val useTranspositionTable: Boolean = true,
     private val lgr: Int = 1
 ) : MonteCarloAlgorithm {
-    val random: Random = Random.Default
-    val actions: IntArray = (0 until 6).toList().toIntArray()
-    val transpositionTable = SimpleTranspositionTable()
-    val lastGoodReplyStore = LastGoodReplyStoreImpl()
-    var cachesHit = 0
-    var cachesMiss = 0
-    var repliesHit = 0
-    var repliesMiss = 0
+    private val random: Random = Random.Default
+    private val actions: IntArray = (0 until 6).toList().toIntArray()
+    private val transpositionTable = SimpleTranspositionTable()
+    private val lastGoodReplyStore = LastGoodReplyStoreImpl()
+    private var cachesHit = 0
+    private var cachesMiss = 0
+    private var repliesHit = 0
+    private var repliesMiss = 0
 
     override fun play(root: MonteCarloNode, iterations: Int): Int {
         repeat(iterations) {
