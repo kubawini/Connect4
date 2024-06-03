@@ -42,7 +42,7 @@ data class BoardState(
     }
 
     /**
-     * Returns number between 1 and 50
+     * Returns number between 0 and 49
      */
     fun getMoveKey(column: Int): MoveKey {
         val piece = (0b111_1111UL shl column * (Height + 1)) and (mask + bottomMask(column))
