@@ -12,16 +12,18 @@ class LastGoodReplyStoreImpl : LastGoodReplyStore {
         replies[player][move.key] = reply.column
     }
 
-    override fun store(move1: MoveKey, move2: MoveKey, reply: MoveColumn, player: Int) {
-        TODO("Not yet implemented")
+    override fun store(prevMove: MoveKey, lastMove: MoveKey, reply: MoveColumn, player: Int) {
+        val key = (prevMove.key shl 6) + lastMove.key
+        replies[player][key] = reply.column
     }
 
     override fun getReply(move: MoveKey, player: Int): MoveColumn {
         return MoveColumn(replies[player][move.key])
     }
 
-    override fun getReply(move1: MoveKey, move2: MoveKey, player: Int): MoveColumn {
-        TODO("Not yet implemented")
+    override fun getReply(prevMove: MoveKey, lastMove: MoveKey, player: Int): MoveColumn {
+        val key = (prevMove.key shl 6) + lastMove.key
+        return MoveColumn(replies[player][key])
     }
 
 

@@ -10,12 +10,12 @@ interface LastGoodReplyStore {
     fun store(move: MoveKey, reply: MoveColumn, player: Int)
 
     /**
-     * Store a reply to 2 moves for a player.
-     * @param move1 is move by player
-     * @param move2 is move by oponent
+     * Store a reply to sequence of 2 moves for a player.
+     * @param prevMove is move by player
+     * @param lastMove is move by oponent
      */
-    fun store(move1: MoveKey, move2: MoveKey, reply: MoveColumn, player: Int)
+    fun store(prevMove: MoveKey, lastMove: MoveKey, reply: MoveColumn, player: Int)
     fun getReply(move: MoveKey, player: Int): MoveColumn
-    fun getReply(move1: MoveKey, move2: MoveKey, player: Int): MoveColumn
+    fun getReply(prevMove: MoveKey, lastMove: MoveKey, player: Int): MoveColumn
 }
 

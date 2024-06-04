@@ -11,7 +11,7 @@ import kotlin.random.Random
 class SimpleMonteCarloAlgorithm(
     private val c: Double = 1.414,
     private val useTranspositionTable: Boolean = true,
-    private val lgr: Int = 1
+    private val lgr: Int = 2
 ) : MonteCarloAlgorithm {
     private val random: Random = Random.Default
     private val actions: IntArray = (0 until 6).toList().toIntArray()
@@ -21,6 +21,8 @@ class SimpleMonteCarloAlgorithm(
     private var cachesMiss = 0
     private var repliesHit = 0
     private var repliesMiss = 0
+    private var replies2Hit = 0
+    private var replies2Miss = 0
 
     override fun play(root: MonteCarloNode, iterations: Int): Int {
         repeat(iterations) {
@@ -31,6 +33,7 @@ class SimpleMonteCarloAlgorithm(
             println(transpositionTable)
             println("Caches hit $cachesHit, caches miss $cachesMiss")
             println("Replies hit $repliesHit, replies miss $repliesMiss")
+            println("Replies2 hit $replies2Hit, replies2 miss $replies2Miss")
         }
         return root.children.maxByOrNull { it.avgScore }?.action ?: -1
     }
@@ -99,7 +102,7 @@ class SimpleMonteCarloAlgorithm(
             }
             var action = -1
             if (lgr > 0 && moves.isNotEmpty()) {
-                action = generateLastGoodReplyAction(lastMove = moves.last(), boardState = boardState)
+                action = generateLastGoodReplyAction(moves = moves, boardState = boardState)
             }
             if (action < 0) {
                 action = generateRandomAction(boardState)
@@ -110,13 +113,28 @@ class SimpleMonteCarloAlgorithm(
     }
 
     private fun generateLastGoodReplyAction(
-        lastMove: MoveKey,
+        moves: List<MoveKey>,
         boardState: BoardState
     ): Int {
-        val move = lastGoodReplyStore.getReply(lastMove, boardState.currentPlayer)
-        return if (move.column > 0 && boardState.canPlay(move.column)) {
+        var column = -1
+        if (lgr == 2 && moves.size > 1) {
+            column = lastGoodReplyStore.getReply(
+                prevMove = moves[moves.size - 1],
+                lastMove = moves.last(),
+                player = boardState.currentPlayer
+            ).column
+            if (column != -1) {
+                replies2Hit++
+            } else {
+                replies2Miss++
+            }
+        }
+        if (lgr > 0 && column == -1) {
+            column = lastGoodReplyStore.getReply(moves.last(), boardState.currentPlayer).column
+        }
+        return if (column > 0 && boardState.canPlay(column)) {
             repliesHit++
-            move.column
+            column
         } else {
             repliesMiss++
             -1
@@ -125,13 +143,21 @@ class SimpleMonteCarloAlgorithm(
 
     private fun updateLastGoodReplies(moves: List<MoveKey>, winner: Int) {
         moves.asReversed()
-            .windowed(size = 2, step = 2)
+            .windowed(size = if (lgr == 2) 3 else 2, step = 2)
             .forEach { lastMoves ->
-                val lastMove = lastMoves[0]
+                val recentMove = lastMoves[0]
                 val prevMove = lastMoves[1]
-                lastGoodReplyStore.store(move = prevMove, reply = lastMove.column, player = winner)
+                lastGoodReplyStore.store(move = prevMove, reply = recentMove.column, player = winner)
+                if (lgr == 2) {
+                    val prevPrevMove = lastMoves[2]
+                    lastGoodReplyStore.store(
+                        prevMove = prevPrevMove,
+                        lastMove = prevMove,
+                        reply = recentMove.column,
+                        player = winner
+                    )
+                }
             }
-
     }
 
     private fun generateRandomAction(boardState: BoardState): Int {
