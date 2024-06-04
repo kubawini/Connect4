@@ -11,7 +11,8 @@ import kotlin.random.Random
 class SimpleMonteCarloAlgorithm(
     private val c: Double = 1.414,
     private val useTranspositionTable: Boolean = true,
-    private val lgr: Int = 2
+    private val lgr: Int = 2,
+    private val printDebugInfo: Boolean = true
 ) : MonteCarloAlgorithm {
     private val random: Random = Random.Default
     private val actions: IntArray = (0 until 6).toList().toIntArray()
@@ -28,9 +29,7 @@ class SimpleMonteCarloAlgorithm(
         repeat(iterations) {
             play(root)
         }
-        println(root.children)
-        if (useTranspositionTable) {
-            println(transpositionTable)
+        if (printDebugInfo) {
             println("Caches hit $cachesHit, caches miss $cachesMiss")
             println("Replies hit $repliesHit, replies miss $repliesMiss")
             println("Replies2 hit $replies2Hit, replies2 miss $replies2Miss")
