@@ -17,5 +17,6 @@ interface LastGoodReplyStore {
     fun store(prevMove: MoveKey, lastMove: MoveKey, reply: MoveColumn, player: Int)
     fun getReply(move: MoveKey, player: Int): MoveColumn
     fun getReply(prevMove: MoveKey, lastMove: MoveKey, player: Int): MoveColumn
+    fun reset()
 }
 

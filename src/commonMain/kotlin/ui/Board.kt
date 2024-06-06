@@ -103,6 +103,7 @@ class Board(
     }
 
     fun restart() {
+        gamePlayer.reset()
         for (col in columns) {
             col.restart()
         }

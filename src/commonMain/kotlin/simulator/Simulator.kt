@@ -8,12 +8,14 @@ const val P1_WIN = 0
 const val P2_WIN = 1
 
 class Simulator(val debug: Boolean = false) {
-    fun simulate(alg1: GamePlayer, alg2: GamePlayer, iterations: Int): SimulationResult {
+    fun simulate(alg1Factory: () -> GamePlayer, alg2Factory: () -> GamePlayer, iterations: Int): SimulationResult {
         var alg1P1Wins = 0
         var alg1P2Wins = 0
         var alg2P1Wins = 0
         var alg2P2Wins = 0
         var draws = 0
+        val alg1 = alg1Factory()
+        val alg2 = alg2Factory()
         repeat(iterations) { i ->
             if (debug) {
                 println("Iteration: $i")
@@ -23,6 +25,8 @@ class Simulator(val debug: Boolean = false) {
                 P2_WIN -> alg2P2Wins++
                 DRAW -> draws++
             }
+            alg1.reset()
+            alg2.reset()
         }
         repeat(iterations) { i ->
             if (debug) {
@@ -33,6 +37,8 @@ class Simulator(val debug: Boolean = false) {
                 P2_WIN -> alg1P2Wins++
                 DRAW -> draws++
             }
+            alg1.reset()
+            alg2.reset()
         }
         return SimulationResult(
             iterations = 2 * iterations,

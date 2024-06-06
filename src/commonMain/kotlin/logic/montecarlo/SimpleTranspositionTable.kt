@@ -16,4 +16,8 @@ class SimpleTranspositionTable(private val size: Int = 8_000_000) : Transpositio
             TranspositionData(data)
         }
     }
+
+    override fun clear() {
+        array.fill(0L)
+    }
 }

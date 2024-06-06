@@ -5,6 +5,7 @@ import kotlin.jvm.JvmInline
 interface TranspositionTable {
     fun put(key: ULong, data: TranspositionData)
     fun get(key: ULong): TranspositionData
+    fun clear()
 }
 
 @JvmInline

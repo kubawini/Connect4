@@ -26,5 +26,10 @@ class LastGoodReplyStoreImpl : LastGoodReplyStore {
         return MoveColumn(replies[player][key])
     }
 
+    override fun reset() {
+        replies[0].fill(-1)
+        replies[1].fill(-1)
+    }
+
 
 }

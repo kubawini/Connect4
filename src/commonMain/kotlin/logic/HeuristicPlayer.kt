@@ -20,6 +20,9 @@ class HeuristicPlayer(private val debug: Boolean = false) : GamePlayer {
         return move
     }
 
+    override fun reset() {
+    }
+
     private fun generateWinningMoveIfPossible(matrix: Matrix, boardState: BoardState): MoveColumn? {
         return actions.firstOrNull { boardState.canPlay(it) && boardState.isWinningMove(it) }?.let { MoveColumn(it) }
     }

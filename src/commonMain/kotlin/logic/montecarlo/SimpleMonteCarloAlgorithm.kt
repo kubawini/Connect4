@@ -62,6 +62,12 @@ class SimpleMonteCarloAlgorithm(
         } ?: -1
     }
 
+    override fun reset() {
+        treeRoot = MonteCarloNode(action = -1, boardState = BoardState(), parent = null)
+        transpositionTable.clear()
+        lastGoodReplyStore.reset()
+    }
+
     private fun play(root: MonteCarloNode) {
         var simulatedPlayer = root.boardState.currentPlayer
         var leafNode = selection(root)

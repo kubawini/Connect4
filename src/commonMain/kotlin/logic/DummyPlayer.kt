@@ -8,4 +8,8 @@ class DummyPlayer : GamePlayer {
         }
         return -1
     }
+
+    override fun reset() {
+
+    }
 }
