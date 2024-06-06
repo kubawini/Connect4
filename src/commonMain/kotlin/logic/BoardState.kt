@@ -50,9 +50,9 @@ data class BoardState(
             throw IllegalStateException("Illegal piece")
         }
         return MoveKey(piece.countTrailingZeroBits())
-        .also {
-            if (it.key > 49) throw IllegalStateException("Illegal play key $it")
-        }
+            .also {
+                if (it.key > 49) throw IllegalStateException("Illegal play key $it")
+            }
     }
 
     private fun bottomMask(column: Int): ULong {
@@ -89,6 +89,12 @@ data class BoardState(
         return alignment(futurePosition)
     }
 
+    fun isOpponentWinningMove(column: Int): Boolean {
+        val opponentPosition = position xor mask
+        val futurePosition = opponentPosition or ((mask + bottomMask(column)) and columnMask(column))
+        return alignment(futurePosition)
+    }
+
     // TODO: verify whether it works
     fun isGameOver(): Boolean {
         return alignment(position xor mask) || isDraw()
@@ -119,6 +125,24 @@ data class BoardState(
         bottom = 0uL
     }
 
+    /**
+     * Converts board to matrix where 1 is current player's piece, 2 is opponent's piece.
+     * Board is indexed as follows: board row column
+     * 0 row means bottom most row, 0 column means left column
+     */
+    fun toMatrix(): Array<IntArray> {
+        val matrix = Array(6) { IntArray(7) { 0 } }
+        for (i in 0 until 7) {
+            for (j in 0 until 6) {
+                matrix[j][i] = when {
+                    (position shr (7 * i + j)) and 1UL == 1UL -> 1
+                    (mask shr (7 * i + j)) and 1UL == 1UL -> 2
+                    else -> 0
+                }
+            }
+        }
+        return matrix
+    }
 }
 
 @JvmInline

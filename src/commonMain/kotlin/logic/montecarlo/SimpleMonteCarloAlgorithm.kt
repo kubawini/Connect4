@@ -3,6 +3,7 @@ package logic.montecarlo
 import logic.BoardState
 import logic.MoveKey
 import logic.Width
+import logic.generateRandomAction
 import logic.montecarlo.MonteCarloGameResult.*
 import kotlin.math.ln
 import kotlin.math.sqrt
@@ -15,7 +16,6 @@ class SimpleMonteCarloAlgorithm(
     private val printDebugInfo: Boolean = true
 ) : MonteCarloAlgorithm {
     private val random: Random = Random.Default
-    private val actions: IntArray = (0 until 6).toList().toIntArray()
     private val transpositionTable = SimpleTranspositionTable()
     private val lastGoodReplyStore = LastGoodReplyStoreImpl()
     private var cachesHit = 0
@@ -104,7 +104,7 @@ class SimpleMonteCarloAlgorithm(
                 action = generateLastGoodReplyAction(moves = moves, boardState = boardState)
             }
             if (action < 0) {
-                action = generateRandomAction(boardState)
+                action = boardState.generateRandomAction(random)
             }
             moves.add(boardState.getMoveKey(action))
             boardState = boardState.play(action)
@@ -157,17 +157,6 @@ class SimpleMonteCarloAlgorithm(
                     )
                 }
             }
-    }
-
-    private fun generateRandomAction(boardState: BoardState): Int {
-        var action = -1
-        while (action < 0) {
-            val newAction = actions.random(random)
-            if (boardState.canPlay(newAction)) {
-                action = newAction
-            }
-        }
-        return action
     }
 
     private fun backpropagation(start: MonteCarloNode, result: MonteCarloGameResult) {

@@ -13,15 +13,13 @@ import korlibs.math.geom.RectCorners
 import korlibs.math.geom.Size
 import kotlinx.coroutines.sync.Mutex
 import leftIndent
-import logic.BoardState
-import logic.GamePlayer
-import logic.MonteCarloPlayer
+import logic.*
 import radius
 import topIndent
 
 fun Container.board(
     stage: Stage,
-    gamePlayer: GamePlayer = MonteCarloPlayer(),
+    gamePlayer: GamePlayer = HeuristicPlayer(),
     onGameOver: (board: Board, GameState.GameOver) -> Unit
 ): Board {
     return Board(
