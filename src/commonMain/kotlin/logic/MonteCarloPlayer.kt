@@ -1,17 +1,17 @@
 package logic
 
 import korlibs.time.measureTimeWithResult
+import logic.montecarlo.MonteCarloAlgorithm
 import logic.montecarlo.MonteCarloNode
 import logic.montecarlo.SimpleMonteCarloAlgorithm
 
 const val iterations: Int = 100_000
 
 class MonteCarloPlayer : GamePlayer {
-    // TODO: Convert to iterative solution where single game tree is extended through the game
+    private val algorithm: MonteCarloAlgorithm = SimpleMonteCarloAlgorithm()
     override fun chooseColumnToPlay(boardState: BoardState): Int {
-        val node = MonteCarloNode(action = -1, boardState = boardState.copy(), parent = null)
         return measureTimeWithResult {
-            SimpleMonteCarloAlgorithm().play(node, iterations)
+            algorithm.play(boardState, iterations)
         }.also {
             println("Time taken: ${it.time}")
         }.result

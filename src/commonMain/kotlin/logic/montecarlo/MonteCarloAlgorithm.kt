@@ -1,5 +1,7 @@
 package logic.montecarlo
 
+import logic.BoardState
+
 interface MonteCarloAlgorithm {
-    fun play(root: MonteCarloNode, iterations: Int): Int
+    fun play(boardState: BoardState, iterations: Int): Int
 }

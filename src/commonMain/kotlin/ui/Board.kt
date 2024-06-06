@@ -19,7 +19,7 @@ import topIndent
 
 fun Container.board(
     stage: Stage,
-    gamePlayer: GamePlayer = HeuristicPlayer(),
+    gamePlayer: GamePlayer = MonteCarloPlayer(),
     onGameOver: (board: Board, GameState.GameOver) -> Unit
 ): Board {
     return Board(

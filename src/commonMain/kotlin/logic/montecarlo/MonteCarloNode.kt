@@ -2,10 +2,12 @@ package logic.montecarlo
 
 import logic.BoardState
 
-data class MonteCarloNode(val action: Int, val boardState: BoardState, val parent: MonteCarloNode?) {
+class MonteCarloNode(val action: Int, val boardState: BoardState, parent: MonteCarloNode?) {
     var visits: Int = 0
         private set
     var scoresSum: Int = 0
+        private set
+    var parent: MonteCarloNode? = parent
         private set
     private val _children: MutableList<MonteCarloNode> = mutableListOf()
     val children: List<MonteCarloNode> = _children
@@ -20,5 +22,9 @@ data class MonteCarloNode(val action: Int, val boardState: BoardState, val paren
 
     fun addChildren(nodes: List<MonteCarloNode>) {
         _children.addAll(nodes)
+    }
+
+    fun clearParent() {
+        parent = null
     }
 }

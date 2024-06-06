@@ -15,6 +15,7 @@ class SimpleMonteCarloAlgorithm(
     private val lgr: Int = 2,
     private val printDebugInfo: Boolean = true
 ) : MonteCarloAlgorithm {
+    private var treeRoot: MonteCarloNode = MonteCarloNode(action = -1, boardState = BoardState(), parent = null)
     private val random: Random = Random.Default
     private val transpositionTable = SimpleTranspositionTable()
     private val lastGoodReplyStore = LastGoodReplyStoreImpl()
@@ -25,16 +26,40 @@ class SimpleMonteCarloAlgorithm(
     private var replies2Hit = 0
     private var replies2Miss = 0
 
-    override fun play(root: MonteCarloNode, iterations: Int): Int {
+    override fun play(boardState: BoardState, iterations: Int): Int {
+        if (treeRoot.action == -1) {
+            treeRoot = MonteCarloNode(action = -1, boardState = boardState.copy(), parent = null)
+        } else {
+            val child = treeRoot.children.firstOrNull { it.boardState.key == boardState.key }
+            if (child != null) {
+                println("Algorithm continues from previous state")
+                treeRoot = child
+                child.clearParent()
+            } else {
+                println("Warning: Can't continue from previous state")
+                treeRoot = MonteCarloNode(action = -1, boardState = boardState.copy(), parent = null)
+            }
+
+        }
         repeat(iterations) {
-            play(root)
+            play(treeRoot)
         }
         if (printDebugInfo) {
             println("Caches hit $cachesHit, caches miss $cachesMiss")
             println("Replies hit $repliesHit, replies miss $repliesMiss")
             println("Replies2 hit $replies2Hit, replies2 miss $replies2Miss")
         }
-        return root.children.maxByOrNull { it.avgScore }?.action ?: -1
+        return treeRoot.children.maxByOrNull { it.avgScore }?.action?.also { action ->
+            val newBoardState = treeRoot.boardState.play(action)
+            val child = treeRoot.children.firstOrNull { it.boardState.key == newBoardState.key }
+            if (child != null) {
+                treeRoot = child
+                child.clearParent()
+            } else {
+                println("Warning: Can't find child with specific key")
+                treeRoot = MonteCarloNode(action = -1, boardState = boardState.copy(), parent = null)
+            }
+        } ?: -1
     }
 
     private fun play(root: MonteCarloNode) {
