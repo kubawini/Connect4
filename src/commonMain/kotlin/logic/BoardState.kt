@@ -143,6 +143,17 @@ data class BoardState(
         }
         return matrix
     }
+
+    fun prettyPrint() {
+        val matrix = this.toMatrix()
+        for(array in matrix.reversed()) {
+            for (j in array) {
+                print("$j ")
+            }
+            println()
+        }
+        println()
+    }
 }
 
 @JvmInline

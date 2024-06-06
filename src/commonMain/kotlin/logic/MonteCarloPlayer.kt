@@ -7,13 +7,12 @@ import logic.montecarlo.SimpleMonteCarloAlgorithm
 
 const val iterations: Int = 100_000
 
-class MonteCarloPlayer : GamePlayer {
-    private val algorithm: MonteCarloAlgorithm = SimpleMonteCarloAlgorithm()
+class MonteCarloPlayer(private val algorithm: MonteCarloAlgorithm = SimpleMonteCarloAlgorithm(), private val debug: Boolean = false) : GamePlayer {
     override fun chooseColumnToPlay(boardState: BoardState): Int {
         return measureTimeWithResult {
             algorithm.play(boardState, iterations)
         }.also {
-            println("Time taken: ${it.time}")
+            if (debug) println("Time taken: ${it.time}")
         }.result
     }
 

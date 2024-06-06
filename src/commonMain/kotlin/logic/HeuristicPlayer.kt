@@ -4,18 +4,18 @@ import kotlin.random.Random
 
 private typealias Matrix = Array<IntArray>
 
-class HeuristicPlayer : GamePlayer {
+class HeuristicPlayer(private val debug: Boolean = false) : GamePlayer {
     private val random: Random = Random.Default
     override fun chooseColumnToPlay(boardState: BoardState): Int {
         val matrix: Matrix = boardState.toMatrix()
         val move = generateWinningMoveIfPossible(matrix, boardState)?.also {
-            println("Generating winning move")
+            if (debug) println("Generating winning move")
         }?.column ?: generateDefendingMoveIfNeeded(matrix, boardState)?.also {
-            println("Generating defending move")
+            if (debug) println("Generating defending move")
         }?.column ?: generateStrategicMoveIfPossible(matrix, boardState)?.also {
-            println("Generating strategic move")
+            if (debug) println("Generating strategic move")
         }?.column ?: generateRandomAction(boardState).also {
-            println("Generating random move")
+            if (debug) println("Generating random move")
         }.column
         return move
     }

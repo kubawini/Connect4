@@ -13,7 +13,7 @@ class SimpleMonteCarloAlgorithm(
     private val c: Double = 1.414,
     private val useTranspositionTable: Boolean = true,
     private val lgr: Int = 2,
-    private val printDebugInfo: Boolean = true
+    private val printDebugInfo: Boolean = false
 ) : MonteCarloAlgorithm {
     private var treeRoot: MonteCarloNode = MonteCarloNode(action = -1, boardState = BoardState(), parent = null)
     private val random: Random = Random.Default
@@ -32,11 +32,11 @@ class SimpleMonteCarloAlgorithm(
         } else {
             val child = treeRoot.children.firstOrNull { it.boardState.key == boardState.key }
             if (child != null) {
-                println("Algorithm continues from previous state")
+                if (printDebugInfo) println("Algorithm continues from previous state")
                 treeRoot = child
                 child.clearParent()
             } else {
-                println("Warning: Can't continue from previous state")
+                if (printDebugInfo) println("Warning: Can't continue from previous state")
                 treeRoot = MonteCarloNode(action = -1, boardState = boardState.copy(), parent = null)
             }
 
@@ -56,7 +56,7 @@ class SimpleMonteCarloAlgorithm(
                 treeRoot = child
                 child.clearParent()
             } else {
-                println("Warning: Can't find child with specific key")
+                if (printDebugInfo) println("Warning: Can't find child with specific key")
                 treeRoot = MonteCarloNode(action = -1, boardState = boardState.copy(), parent = null)
             }
         } ?: -1
