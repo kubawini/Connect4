@@ -11,7 +11,7 @@ import kotlin.random.Random
 
 class SimpleMonteCarloAlgorithm(
     private val c: Double = 1.414,
-    private val useTranspositionTable: Boolean = true,
+    private val useTranspositionTable: Boolean = false,
     private val lgr: Int = 2,
     private val printDebugInfo: Boolean = false
 ) : MonteCarloAlgorithm {
