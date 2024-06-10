@@ -29,9 +29,8 @@ iteratively. After a sufficient number of iterations, the algorithm returns the 
 for state S using the formula:
 
 MCTS searches game states space iteratively. After completing sufficient nymber of iterations, algorithm returns the best possible actios for state $S$ according to formula:
-\[
-a^* = arg\max_{a\in{A(S)}}{Q(S,a)},
-\]
+
+$a^* = arg\max_{a\in{A(S)}}{Q(S,a)},$
 
 The basic MCTS algorithm consists of four phases:
 - selections,
@@ -44,9 +43,7 @@ Each phase has been explained in more details in our [summary](./Raport_MCTS.pdf
 ### MCTS with transposition tables
 Transposition tables address the issue that while searching the game tree, an algorithm may reach the same state through different sequences of actions. In the basic version of the MCTS algorithm, such states would be independent. This approach causes the algorithm to potentially re-evaluate the same state multiple times during its execution, slowing it down. Transposition tables are tables that contain information about visited states in the game. In the MCTS algorithm, this information is the average result $Q(S)$ for a given state $S$. It is used in the action selection phase $a^*$ according to the formula:
 
-\[
-a^*=\arg \max _{a \in A(S)}\left\{Q(g(S,a))+C \sqrt{\frac{\ln [N(S)]}{N(s, a)}}\right\},
-\]
+$a^*=\arg \max _{a \in A(S)}\left\{Q(g(S,a))+C \sqrt{\frac{\ln [N(S)]}{N(s, a)}}\right\},$
 
 where $g(S,a)$ is the state reached after performing action $a$ in state $S$.
 
